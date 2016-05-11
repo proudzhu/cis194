@@ -9,6 +9,7 @@ cabal-version:       >=1.10
 
 
 library
+  exposed-modules:     Hw1, Hw2, Hw3
   build-depends:       base >=4.8 && <4.9
   ghc-options:         -Wall
   hs-source-dirs:	   src
