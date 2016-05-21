@@ -89,7 +89,11 @@ instance Num a => Num (Poly a) where
 -- >>> applyP (x^2 + 2*x + 1) 2
 -- 9
 applyP :: Num a => Poly a -> a -> a
-applyP (P arr) = evaluateCoefs 0 arr
+applyP (P arr) val = sum $ zipWith (*) arr itr
+    where itr = iterate (*val) 1
+
+applyP' :: Num a => Poly a -> a -> a
+applyP' (P arr) = evaluateCoefs 0 arr
     where
         evaluateCoefs _ [] _ = 0
         evaluateCoefs acc [k] val = k * (val ^ acc)
