@@ -55,10 +55,6 @@ boolToInt b = if b then 1 else 0
 -- >>> evalE empty (Val 5)
 -- 5
 --
--- >>> let st' = extend st "A" 5
--- >>> evalE st' (Val "A")
--- 5
---
 -- >>> evalE empty (Op (Val 1) Eql (Val 2))
 -- 0
 evalE :: State -> Expression -> Int
