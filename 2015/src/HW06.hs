@@ -133,6 +133,25 @@ main :: IO ()
 main = print $ minMax $ sTake 1000000 $ rand 7666532
 
 -- Exercise 10 ----------------------------------------
-
+--
+-- >>> fastFib 9
+-- 55
 fastFib :: Int -> Integer
-fastFib = undefined
+fastFib i = fastFibHelper $ (Matrix 1 1 1 0) ^ (i + 1)
+
+fastFibHelper :: Matrix -> Integer
+fastFibHelper (Matrix _ _ x _) = x
+
+data Matrix = Matrix Integer Integer Integer Integer
+              deriving (Eq)
+
+instance Num Matrix where
+  (*) (Matrix x00 x01 x10 x11) (Matrix y00 y01 y10 y11)
+      = (Matrix (x00 * y00 + x01 * y10) (x00 * y01 + x01 * y11)
+                (x10 * y00 + x11 * y10) (x10 * y01 + x11 * y11))
+  (+) = undefined
+  fromInteger = undefined
+  negate = undefined
+  abs = undefined
+  signum = undefined
+
