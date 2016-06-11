@@ -9,7 +9,7 @@ cabal-version:       >=1.10
 
 
 library
-  exposed-modules:     HW01, HW02, HW03, HW04, HW05
+  exposed-modules:     HW01, HW02, HW03, HW04, HW05, HW06
   build-depends:       base >=4.8 && <5.0,
                        bytestring,
                        containers,
