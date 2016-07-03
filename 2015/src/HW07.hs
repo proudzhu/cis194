@@ -60,12 +60,26 @@ randomVecR i (x, y) = V.fromList <$> replicateM i (getRandomR (x, y))
 -- Exercise 5 -----------------------------------------
 
 shuffle :: Vector a -> Rnd (Vector a)
-shuffle = undefined
+shuffle v = foldr swap v <$> mapM getRandomSwap [n-1,n-2..1]
+  where
+    n = V.length v
+    getRandomSwap i = (\j -> (i, j)) <$> getRandomR (0, i)
+    swap (i, j) v' = v' // [(i, v' ! j), (j, v' ! i)]
 
 -- Exercise 6 -----------------------------------------
-
+-- | Partition a Vector around the element at a given index
+--
+-- >>> partitionAt (V.fromList [5,2,8,3,6,1]) 3
+-- ([2,1],3,[5,8,6])
+--
+-- >>> partitionAt (V.fromList [1,6,4,7,2,4]) 2
+-- ([1,2],4,[6,7,4])
 partitionAt :: Ord a => Vector a -> Int -> (Vector a, a, Vector a)
-partitionAt = undefined
+partitionAt v i = (before, pivot, after)
+    where pivot = v ! i
+          v' = V.take i v V.++ V.drop (i+1) v
+          before = V.filter (<pivot) v'
+          after = V.filter (>=pivot) v'
 
 -- Exercise 7 -----------------------------------------
 
@@ -75,37 +89,73 @@ quicksort [] = []
 quicksort (x:xs) = quicksort [ y | y <- xs, y < x ]
                    <> (x : quicksort [ y | y <- xs, y >= x ])
 
+-- | qsort
+--
+-- >>> qsort (V.fromList [5,2,8,3,6,1])
+-- [1,2,3,5,6,8]
 qsort :: Ord a => Vector a -> Vector a
-qsort = undefined
+qsort v
+  | V.null v = V.empty
+  | otherwise = qsort [ y | y <- xs, y < x ]
+                <> (x `cons` qsort [ y | y <- xs, y >= x ])
+  where x = V.head v
+        xs = V.tail v
 
 -- Exercise 8 -----------------------------------------
-
+-- | qsortR
+--
+-- >>> evalRandIO $ qsortR (V.fromList [5,2,8,3,6,1])
+-- [1,2,3,5,6,8]
 qsortR :: Ord a => Vector a -> Rnd (Vector a)
-qsortR = undefined
+qsortR v
+  | V.null v = return V.empty
+  | otherwise = fmap (partitionAt v) rip >>= mergeSorted
+  where rip = getRandomR (0, V.length v - 1)
+        mergeSorted (a, p, b) = liftM2 (<>) (qsortR a) pb'
+          where pb' = fmap (p `cons`) (qsortR b)
+
 
 -- Exercise 9 -----------------------------------------
 
--- Selection
+-- | Selection
+--
+-- >>> evalRandIO $ select 3 (V.fromList [5,2,8,3,6,1])
+-- Just 5
 select :: Ord a => Int -> Vector a -> Rnd (Maybe a)
-select = undefined
+select i v
+  | V.null v  = return Nothing
+  | otherwise = fmap (partitionAt v) rip >>= findI
+  where rip = getRandomR (0, V.length v - 1)
+        findI (a, p, b)
+          | i < na = select i a
+          | i > na = select (i-na-1) b
+          | otherwise = return $ Just p
+          where na = V.length a
 
 -- Exercise 10 ----------------------------------------
 
 allCards :: Deck
-allCards = undefined
+allCards = [ Card l s | l <- labels, s <- suits ]
 
 newDeck :: Rnd Deck
-newDeck =  undefined
+newDeck =  shuffle allCards
 
 -- Exercise 11 ----------------------------------------
 
 nextCard :: Deck -> Maybe (Card, Deck)
-nextCard = undefined
+nextCard d
+  | V.null d = Nothing
+  | otherwise = Just (V.head d, V.tail d)
 
 -- Exercise 12 ----------------------------------------
 
 getCards :: Int -> Deck -> Maybe ([Card], Deck)
-getCards = undefined
+getCards n = go []
+  where go cards deck
+          | length cards >= n = return (cards, deck)
+          | otherwise = do
+                        (card, deck') <- nextCard deck
+                        go (cards ++ [card]) deck'
 
 -- Exercise 13 ----------------------------------------
 
